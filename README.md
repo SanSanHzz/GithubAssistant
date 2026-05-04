@@ -1,44 +1,44 @@
 # GitHub Manager
 
-**URL de Producción:** https://dnrif6ny.insforge.site
+**Production URL:** https://dnrif6ny.insforge.site
 
 ---
 
-## Descripción
+## Description
 
-GitHub Manager es una aplicación web que permite gestionar repositorios de GitHub de manera más eficiente. Permite visualizar, crear, modificar la privacidad de repositorios y editar el README de perfil de GitHub desde una interfaz intuitiva.
-
----
-
-## Funcionalidades
-
-### 1. Gestión de Repositorios
-- **Listar repositorios** - Visualiza todos tus repositorios con información de visibilidad, lenguaje y descripción
-- **Buscar repositorios** - Filtra repositorios por nombre o descripción
-- **Crear repositorios** - Crea nuevos repositorios (públicos o privados)
-- **Cambiar privacidad** - Modifica la visibilidad de repositorios individualmente o en lote (seleección múltiple)
-
-### 2. Editor de Perfil (README)
-- **Editor tipo Word** - Interfaz de edición enriquecida con opciones de formato:
-  - Negrita, cursiva, títulos (H1, H2, H3)
-  - Listas (ordenadas y desordenadas)
-  - Código inline
-  - Resaltado de texto
-  - Colores de texto
-- **Preview en tiempo real** - Ve los cambios mientras editas
-- **Guardado automático** - Commit directo a tu repositorio de perfil
-
-### 3. Sistema de Tema
-- **Dark/Light Mode** - Toggling entre modo oscuro y claro
-- **Persistencia** - El tema seleccionado se guarda y sincroniza entre pestañas
-
-### 4. Comunicación en Tiempo Real
-- **Sincronización entre pestañas** - Los cambios de estado se reflejan instantáneamente en otras pestañas abiertas
-- **Persistencia de estado** - Los cambios localres survive refresh del navegador
+GitHub Manager is a web application that allows you to manage GitHub repositories more efficiently. It lets you view, create, modify repository privacy, and edit your GitHub profile README from an intuitive interface.
 
 ---
 
-## Arquitectura
+## Features
+
+### 1. Repository Management
+- **List repositories** - View all your repositories with visibility, language, and description info
+- **Search repositories** - Filter repositories by name or description
+- **Create repositories** - Create new repositories (public or private)
+- **Change privacy** - Modify visibility of repositories individually or in bulk (multi-select)
+
+### 2. Profile Editor (README)
+- **Word-like Editor** - Rich text editing interface with formatting options:
+  - Bold, italic, headings (H1, H2, H3)
+  - Lists (ordered and unordered)
+  - Inline code
+  - Text highlighting
+  - Text colors
+- **Real-time preview** - See changes as you edit
+- **Auto-save** - Direct commit to your profile repository
+
+### 3. Theme System
+- **Dark/Light Mode** - Toggle between dark and light mode
+- **Persistence** - Selected theme is saved and synced across tabs
+
+### 4. Real-time Communication
+- **Cross-tab sync** - State changes are instantly reflected in other open tabs
+- **State persistence** - Local changes survive browser refresh
+
+---
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ GitHub Manager es una aplicación web que permite gestionar repositorios de GitH
 │         └────────────┴────────────┴───────────┘        │
 │                          │                              │
 │                   ┌──────┴──────┐                       │
-│                   │ React Query │ (Estado + Cache)     │
+│                   │ React Query │ (State + Cache)      │
 │                   └──────┬──────┘                       │
 │                          │                              │
 └──────────────────────────┼──────────────────────────────┘
@@ -58,38 +58,38 @@ GitHub Manager es una aplicación web que permite gestionar repositorios de GitH
                     GitHub API (REST)
 ```
 
-### Componentes Principales
+### Key Components
 
-| Componente | Responsabilidad |
+| Component | Responsibility |
 |------------|-----------------|
-| `App.tsx` | Routing y providers globales |
-| `ThemeContext` | Gestión del tema (dark/light) |
-| `Repos.tsx` | Gestión de repositorios con estado local |
-| `Editor.tsx` | Editor de README con TipTap |
-| `github.ts` | Wrapper para API de GitHub |
-| `insforge.ts` | Cliente de InsForge SDK |
+| `App.tsx` | Routing and global providers |
+| `ThemeContext` | Theme management (dark/light) |
+| `Repos.tsx` | Repository management with local state |
+| `Editor.tsx` | README editor with TipTap |
+| `github.ts` | GitHub API wrapper |
+| `insforge.ts` | InsForge SDK client |
 
-### Tecnologías
+### Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **Estado**: TanStack React Query + Context API
-- **Estilos**: Tailwind CSS
+- **State**: TanStack React Query + Context API
+- **Styling**: Tailwind CSS
 - **Editor**: TipTap (Rich Text Editor)
-- **Despliegue**: InsForge (Vercel-compatible)
+- **Deployment**: InsForge (Vercel-compatible)
 - **API**: GitHub REST API v3
 
 ---
 
-## Lógica de Negocio
+## Business Logic
 
-### Estado de Visibilidad de Repositorios
+### Repository Visibility State
 
-El desafío principal era mantener el estado correcto de visibilidad considerando el delay de GitHub API. La solución implementada:
+The main challenge was maintaining correct visibility state considering GitHub API delay. The implemented solution:
 
-1. **Estado local `localChanges`**: Map que almacena los cambios realizados por el usuario
-2. **Función `getRepoVisibility()`**: Retorna el valor de `localChanges` si existe, sino usa el valor del servidor
-3. **Persistencia en localStorage**: Los cambios survive al refresh del navegador
-4. **Storage Events**: Sincronización entre pestañas
+1. **Local state `localChanges`**: Map storing user-made changes
+2. **Function `getRepoVisibility()`**: Returns `localChanges` value if exists, otherwise uses server value
+3. **localStorage persistence**: Changes survive browser refresh
+4. **Storage Events**: Cross-tab synchronization
 
 ```typescript
 const getRepoVisibility = (repo: GitHubRepo): boolean => {
@@ -100,19 +100,19 @@ const getRepoVisibility = (repo: GitHubRepo): boolean => {
 }
 ```
 
-### Autenticación
+### Authentication
 
-- Usa **Personal Access Token** de GitHub
-- El token se guarda en localStorage
-- Se envía en cada request a la API de GitHub
+- Uses **Personal Access Token** from GitHub
+- Token is stored in localStorage
+- Sent with every request to GitHub API
 
-### Mutations y Optimistic Updates
+### Mutations
 
-Los cambios se confirman con GitHub y luego se actualiza el estado local, evitandoconfictos con datos stale del servidor.
+Changes are confirmed with GitHub and then local state is updated, avoiding conflicts with stale server data.
 
 ---
 
-## Variables de Entorno
+## Environment Variables
 
 ```env
 VITE_GITHUB_CLIENT_ID=Ov23liCZGkZ1nO5pN9qX
@@ -122,35 +122,35 @@ VITE_INSFORGE_ANON_KEY=eyJ...
 
 ---
 
-## Desarrollo Local
+## Local Development
 
 ```bash
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Ejecutar en desarrollo
+# Run in development
 npm run dev
 
-# Build para producción
+# Build for production
 npm run build
 ```
 
 ---
 
-## Producción
+## Production
 
-La aplicación está desplegada en InsForge: https://dnrif6ny.insforge.site
-
----
-
-## Permisos Requeridos del Token
-
-Para usar la aplicación, el Personal Access Token debe tener:
-- `repo` - Acceso a repositorios
-- `read:user` - Leer información del usuario
+The app is deployed on InsForge: https://dnrif6ny.insforge.site
 
 ---
 
-## Licencia
+## Required Token Permissions
+
+To use the app, the Personal Access Token must have:
+- `repo` - Repository access
+- `read:user` - Read user information
+
+---
+
+## License
 
 MIT
