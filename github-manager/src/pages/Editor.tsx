@@ -7,6 +7,7 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
 import { Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Code, Highlighter, Save, Loader2 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 interface EditorProps {
   token: string
@@ -22,6 +23,7 @@ export default function Editor({ token, username }: EditorProps) {
   const github = new GitHubAPI(token)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const { t } = useLanguage()
 
   const { data: readme, isLoading } = useQuery({
     queryKey: ['readme', token, username],
@@ -42,11 +44,11 @@ export default function Editor({ token, username }: EditorProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readme', token, username] })
       queryClient.refetchQueries({ queryKey: ['readme', token, username] })
-      setMessage('Guardado exitosamente!')
+      setMessage(t('editor.saved'))
       setTimeout(() => setMessage(''), 3000)
     },
     onError: () => {
-      setMessage('Error al guardar')
+      setMessage(t('editor.error'))
       setTimeout(() => setMessage(''), 3000)
     }
   })
@@ -90,25 +92,25 @@ export default function Editor({ token, username }: EditorProps) {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Editor de Perfil</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Edita tu README de perfil de GitHub</p>
+<div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('editor.title')}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{t('editor.subtitle')}</p>
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving || commitMutation.isPending}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+          >
+            {saving || commitMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            {t('editor.save')}
+          </button>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving || commitMutation.isPending}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-        >
-          {saving || commitMutation.isPending ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="w-4 h-4 mr-2" />
-          )}
-          Guardar Cambios
-        </button>
-      </div>
 
       {message && (
         <div className={`mb-4 p-4 rounded-lg ${message.includes('Error') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
@@ -202,7 +204,7 @@ export default function Editor({ token, username }: EditorProps) {
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-        Nota: Tu README de perfil debe estar en el repositorio <code>{username}/{username}</code>
+        {t('editor.note', { repo: `${username}/${username}` })}
       </p>
     </div>
   )

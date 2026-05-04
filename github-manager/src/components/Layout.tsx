@@ -1,9 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { FolderGit2, FileEdit, LayoutDashboard, LogOut, Sun, Moon } from 'lucide-react'
+import { FolderGit2, FileEdit, LayoutDashboard, LogOut, Sun, Moon, Globe } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Layout({ username, onLogout }: { token: string | null, username: string | null, onLogout: () => void }) {
   const { theme, toggleTheme } = useTheme()
+  const { language, toggleLanguage, t } = useLanguage()
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -24,7 +26,7 @@ export default function Layout({ username, onLogout }: { token: string | null, u
                   }
                 >
                   <LayoutDashboard className="w-4 h-4 inline mr-2" />
-                  Dashboard
+                  {t('layout.dashboard')}
                 </NavLink>
                 <NavLink
                   to="/repos"
@@ -37,7 +39,7 @@ export default function Layout({ username, onLogout }: { token: string | null, u
                   }
                 >
                   <FolderGit2 className="w-4 h-4 inline mr-2" />
-                  Repositorios
+                  {t('layout.repos')}
                 </NavLink>
                 <NavLink
                   to="/editor"
@@ -50,7 +52,7 @@ export default function Layout({ username, onLogout }: { token: string | null, u
                   }
                 >
                   <FileEdit className="w-4 h-4 inline mr-2" />
-                  Editor README
+                  {t('layout.editor')}
                 </NavLink>
               </nav>
             </div>
@@ -63,6 +65,14 @@ export default function Layout({ username, onLogout }: { token: string | null, u
                 className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg"
               >
                 {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              </button>
+              <button
+                onClick={toggleLanguage}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg"
+                title={language === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
+              >
+                <Globe className="w-5 h-5" />
+                <span className="ml-1 text-xs font-medium">{language.toUpperCase()}</span>
               </button>
               <button
                 onClick={onLogout}

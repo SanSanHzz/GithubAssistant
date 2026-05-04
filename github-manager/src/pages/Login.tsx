@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Terminal, Sun, Moon } from 'lucide-react'
+import { Terminal, Sun, Moon, HelpCircle, X, Globe } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 
 interface LoginProps {
   onLogin: (token: string, username: string) => void
@@ -10,7 +11,9 @@ export default function Login({ onLogin }: LoginProps) {
   const [token, setToken] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { language, toggleLanguage, t } = useLanguage()
 
   const handleGitHubLogin = () => {
     const clientId = 'Ov23liQSwMeNgVYkSTr8'
@@ -39,7 +42,7 @@ export default function Login({ onLogin }: LoginProps) {
       const user = await response.json()
       onLogin(token, user.login)
     } catch (err) {
-      setError('Token inválido. Por favor verifica tu Personal Access Token.')
+      setError(t('login.error'))
     } finally {
       setLoading(false)
     }
@@ -53,13 +56,20 @@ export default function Login({ onLogin }: LoginProps) {
       >
         {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
       </button>
+      <button
+        onClick={toggleLanguage}
+        className="absolute top-4 right-16 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+      >
+        <Globe className="w-5 h-5" />
+        <span className="ml-1 text-xs font-medium">{language.toUpperCase()}</span>
+      </button>
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-900 dark:bg-white rounded-2xl mb-4">
             <Terminal className="w-8 h-8 text-white dark:text-gray-900" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">GitHub Manager</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Ingresa tu Personal Access Token para continuar</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('login.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">{t('login.subtitle')}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
@@ -68,7 +78,7 @@ export default function Login({ onLogin }: LoginProps) {
             className="w-full py-3 px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
           >
             <span className="text-lg font-bold">🐙</span>
-            Iniciar sesión con GitHub
+            {t('login.oauth')}
           </button>
 
           <div className="relative my-6">
@@ -76,20 +86,20 @@ export default function Login({ onLogin }: LoginProps) {
               <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">o</span>
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">{t('login.or')}</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Personal Access Token
+                {t('login.tokenLabel')}
               </label>
               <input
                 type="password"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                placeholder={t('login.tokenPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -101,16 +111,53 @@ export default function Login({ onLogin }: LoginProps) {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Verificando...' : 'Usar Token Manual'}
-            </button>
+            <div className="relative group">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+              >
+                {loading ? t('login.loading') : t('login.submit')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
+            </div>
           </form>
         </div>
       </div>
+
+      {showHelp && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowHelp(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('help.title')}</h2>
+              <button onClick={() => setShowHelp(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4 text-gray-600 dark:text-gray-300">
+              <p>{t('help.steps')}</p>
+              <ol className="list-decimal list-inside space-y-2">
+                <li>{t('help.step1')} <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">GitHub Settings → Tokens</a></li>
+                <li>{t('help.step2')}</li>
+                <li>{t('help.step3')}</li>
+                <li>{t('help.step4')}</li>
+                <li>{t('help.step5')} <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">repo</code> {language === 'es' ? 'y' : 'and'} <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">read:user</code></li>
+                <li>{t('help.step6')}</li>
+                <li>{t('help.step7')}</li>
+              </ol>
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
+                ⚠️ {t('help.warning')}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
