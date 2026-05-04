@@ -12,6 +12,13 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading] = useState(false)
   const { theme, toggleTheme } = useTheme()
 
+  const handleGitHubLogin = () => {
+    const clientId = 'Ov23liQSwMeNgVYkSTr8'
+    const redirectUri = 'https://dnrif6ny.insforge.site/auth/callback'
+    const scope = 'repo,read:user'
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -55,39 +62,54 @@ export default function Login({ onLogin }: LoginProps) {
           <p className="text-gray-500 dark:text-gray-400 mt-2">Ingresa tu Personal Access Token para continuar</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Personal Access Token
-            </label>
-            <input
-              type="password"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <button
+            onClick={handleGitHubLogin}
+            className="w-full py-3 px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <span className="text-lg font-bold">🐙</span>
+            Iniciar sesión con GitHub
+          </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">o</span>
+            </div>
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm">
-              {error}
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Personal Access Token
+              </label>
+              <input
+                type="password"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Verificando...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
 
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-          Necesitas un token con permisos: <code>repo</code>, <code>read:user</code>
-        </p>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Verificando...' : 'Usar Token Manual'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import Login from './pages/Login'
+import Callback from './pages/Callback'
 import Dashboard from './pages/Dashboard'
 import Repos from './pages/Repos'
 import Editor from './pages/Editor'
@@ -43,6 +44,7 @@ function App() {
             <Route path="/login" element={
               token ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
             } />
+            <Route path="/auth/callback" element={<Callback />} />
             <Route element={<Layout token={token} username={username} onLogout={handleLogout} />}>
               <Route path="/" element={
                 token ? <Dashboard token={token} username={username!} /> : <Navigate to="/login" />
