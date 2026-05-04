@@ -1,110 +1,156 @@
-# Personal AI Calendar
+# GitHub Manager
 
-Page Deploy to production
+**URL de Producción:** https://dnrif6ny.insforge.site
 
+---
 
-https://calendar-website-frontend.onrender.com
+## Descripción
 
+GitHub Manager es una aplicación web que permite gestionar repositorios de GitHub de manera más eficiente. Permite visualizar, crear, modificar la privacidad de repositorios y editar el README de perfil de GitHub desde una interfaz intuitiva.
 
-Dockerized full-stack calendar app with a FastAPI backend, React frontend, and PostgreSQL database.
+---
 
-## Project structure
+## Funcionalidades
 
-```text
-root/
-├── backend/
-│   ├── app/
-│   ├── Dockerfile
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   ├── Dockerfile
-│   ├── index.html
-│   └── package.json
-├── docker-compose.yml
-└── .env.example
+### 1. Gestión de Repositorios
+- **Listar repositorios** - Visualiza todos tus repositorios con información de visibilidad, lenguaje y descripción
+- **Buscar repositorios** - Filtra repositorios por nombre o descripción
+- **Crear repositorios** - Crea nuevos repositorios (públicos o privados)
+- **Cambiar privacidad** - Modifica la visibilidad de repositorios individualmente o en lote (seleección múltiple)
+
+### 2. Editor de Perfil (README)
+- **Editor tipo Word** - Interfaz de edición enriquecida con opciones de formato:
+  - Negrita, cursiva, títulos (H1, H2, H3)
+  - Listas (ordenadas y desordenadas)
+  - Código inline
+  - Resaltado de texto
+  - Colores de texto
+- **Preview en tiempo real** - Ve los cambios mientras editas
+- **Guardado automático** - Commit directo a tu repositorio de perfil
+
+### 3. Sistema de Tema
+- **Dark/Light Mode** - Toggling entre modo oscuro y claro
+- **Persistencia** - El tema seleccionado se guarda y sincroniza entre pestañas
+
+### 4. Comunicación en Tiempo Real
+- **Sincronización entre pestañas** - Los cambios de estado se reflejan instantáneamente en otras pestañas abiertas
+- **Persistencia de estado** - Los cambios localres survive refresh del navegador
+
+---
+
+## Arquitectura
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (React)                     │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
+│  │  Login   │  │Dashboard │  │  Repos   │  │  Editor │ │
+│  └──────────┘  └──────────┘  └──────────┘  └─────────┘ │
+│         │            │            │           │        │
+│         └────────────┴────────────┴───────────┘        │
+│                          │                              │
+│                   ┌──────┴──────┐                       │
+│                   │ React Query │ (Estado + Cache)     │
+│                   └──────┬──────┘                       │
+│                          │                              │
+└──────────────────────────┼──────────────────────────────┘
+                           │
+                    GitHub API (REST)
 ```
 
-## Services
+### Componentes Principales
 
-- `backend`: FastAPI API with JWT auth, Google OAuth, chat parsing, and Google Calendar sync
-- `frontend`: React app with login, register, dashboard, chat UI, task list, and calendar view
-- `db`: PostgreSQL 15 with a persistent Docker volume
+| Componente | Responsabilidad |
+|------------|-----------------|
+| `App.tsx` | Routing y providers globales |
+| `ThemeContext` | Gestión del tema (dark/light) |
+| `Repos.tsx` | Gestión de repositorios con estado local |
+| `Editor.tsx` | Editor de README con TipTap |
+| `github.ts` | Wrapper para API de GitHub |
+| `insforge.ts` | Cliente de InsForge SDK |
 
-## Docker run
+### Tecnologías
 
-1. Copy `.env.example` to `.env`.
-2. Fill in your Google OAuth credentials and secret key.
-3. Start everything:
+- **Frontend**: React 18 + TypeScript + Vite
+- **Estado**: TanStack React Query + Context API
+- **Estilos**: Tailwind CSS
+- **Editor**: TipTap (Rich Text Editor)
+- **Despliegue**: InsForge (Vercel-compatible)
+- **API**: GitHub REST API v3
 
-```bash
-docker-compose up --build
+---
+
+## Lógica de Negocio
+
+### Estado de Visibilidad de Repositorios
+
+El desafío principal era mantener el estado correcto de visibilidad considerando el delay de GitHub API. La solución implementada:
+
+1. **Estado local `localChanges`**: Map que almacena los cambios realizados por el usuario
+2. **Función `getRepoVisibility()`**: Retorna el valor de `localChanges` si existe, sino usa el valor del servidor
+3. **Persistencia en localStorage**: Los cambios survive al refresh del navegador
+4. **Storage Events**: Sincronización entre pestañas
+
+```typescript
+const getRepoVisibility = (repo: GitHubRepo): boolean => {
+  if (localChanges.has(repo.id)) {
+    return localChanges.get(repo.id)!
+  }
+  return repo.private
+}
 ```
 
-## Local URLs
+### Autenticación
 
-- Frontend: [http://localhost:5173](http://localhost:5173)
-- Backend: [http://localhost:8000](http://localhost:8000)
-- PostgreSQL: `localhost:5432`
+- Usa **Personal Access Token** de GitHub
+- El token se guarda en localStorage
+- Se envía en cada request a la API de GitHub
 
-## Local development without Docker
+### Mutations y Optimistic Updates
 
-Backend:
+Los cambios se confirman con GitHub y luego se actualiza el estado local, evitandoconfictos con datos stale del servidor.
 
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+---
+
+## Variables de Entorno
+
+```env
+VITE_GITHUB_CLIENT_ID=Ov23liCZGkZ1nO5pN9qX
+VITE_INSFORGE_URL=https://dnrif6ny.us-east.insforge.app
+VITE_INSFORGE_ANON_KEY=eyJ...
 ```
 
-Frontend:
+---
+
+## Desarrollo Local
 
 ```bash
-cd frontend
+# Instalar dependencias
 npm install
+
+# Ejecutar en desarrollo
 npm run dev
+
+# Build para producción
+npm run build
 ```
 
-## Environment variables
+---
 
-- `DATABASE_URL=postgresql://postgres:postgres@db:5432/calendar_app`
-- `SECRET_KEY=supersecret`
-- `ACCESS_TOKEN_EXPIRE_MINUTES=60`
-- `JWT_ALGORITHM=HS256`
-- `GOOGLE_CLIENT_ID=your_client_id`
-- `GOOGLE_CLIENT_SECRET=your_secret`
-- `GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback`
-- `GOOGLE_OAUTH_SCOPE=openid email profile https://www.googleapis.com/auth/calendar`
-- `FRONTEND_SUCCESS_URL=http://localhost:5173/dashboard`
-- `BACKEND_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173`
-- `VITE_API_URL=http://localhost:8000`
+## Producción
 
-## Deployment
+La aplicación está desplegada en InsForge: https://dnrif6ny.insforge.site
 
-### Render
+---
 
-- Deploy PostgreSQL using Render Postgres.
-- Deploy the backend as a web service from `backend/`.
-- Set environment variables from `.env.example`, replacing local values with Render service values.
-- Deploy the frontend as a static site from `frontend/`.
-- Set `VITE_API_URL` to the public backend URL before the frontend build.
-- Update `FRONTEND_SUCCESS_URL`, `BACKEND_CORS_ORIGINS`, and `GOOGLE_REDIRECT_URI` to your public domains.
+## Permisos Requeridos del Token
 
-### Railway
+Para usar la aplicación, el Personal Access Token debe tener:
+- `repo` - Acceso a repositorios
+- `read:user` - Leer información del usuario
 
-- Create a PostgreSQL service in Railway.
-- Deploy the backend from `backend/` as a web service.
-- Deploy the frontend from `frontend/` or publish the built static assets separately.
-- Configure all secrets in Railway variables.
-- Point `DATABASE_URL` to Railway Postgres and update public callback/CORS URLs.
+---
 
-## Production improvements included
+## Licencia
 
-- Backend Docker image runs with `gunicorn` plus `uvicorn` workers
-- Frontend Docker image builds static assets and serves them with `serve`
-- FastAPI CORS is enabled through environment-configurable origins
-- Environment-driven URLs are ready for local and hosted deployments
-
-## GitHub Actions
-
-The optional CI workflow in `.github/workflows/docker.yml` builds both Docker images on pushes to `main` and on pull requests.
+MIT
