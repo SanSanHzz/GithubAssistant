@@ -8,6 +8,7 @@ import Repos from './pages/Repos'
 import Editor from './pages/Editor'
 import Layout from './components/Layout'
 import { ThemeProvider } from './context/ThemeContext'
+import { LanguageProvider } from './context/LanguageContext'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,29 +38,31 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={
-              token ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
-            } />
-            <Route path="/auth/callback" element={<Callback />} />
-            <Route element={<Layout token={token} username={username} onLogout={handleLogout} />}>
-              <Route path="/" element={
-                token ? <Dashboard token={token} username={username!} /> : <Navigate to="/login" />
+    <LanguageProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={
+                token ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
               } />
-              <Route path="/repos" element={
-                token ? <Repos token={token} /> : <Navigate to="/login" />
-              } />
-              <Route path="/editor" element={
-                token ? <Editor token={token} username={username!} /> : <Navigate to="/login" />
-              } />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ThemeProvider>
+              <Route path="/auth/callback" element={<Callback />} />
+              <Route element={<Layout token={token} username={username} onLogout={handleLogout} />}>
+                <Route path="/" element={
+                  token ? <Dashboard token={token} username={username!} /> : <Navigate to="/login" />
+                } />
+                <Route path="/repos" element={
+                  token ? <Repos token={token} /> : <Navigate to="/login" />
+                } />
+                <Route path="/editor" element={
+                  token ? <Editor token={token} username={username!} /> : <Navigate to="/login" />
+                } />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   )
 }
 

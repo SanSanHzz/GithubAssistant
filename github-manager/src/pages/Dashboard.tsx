@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { GitHubAPI } from '../lib/github'
 import { FolderGit2, Star, FileEdit } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 interface DashboardProps {
   token: string
@@ -10,6 +11,7 @@ interface DashboardProps {
 
 export default function Dashboard({ token, username }: DashboardProps) {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['user', token],
@@ -46,16 +48,16 @@ export default function Dashboard({ token, username }: DashboardProps) {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          ¡Bienvenido, {user?.name || username}!
+          {t('dashboard.welcome', { name: user?.name || username })}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Gestiona tus repositorios fácilmente</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Repositorios Públicos</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.publicRepos')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{publicRepos}</p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -67,7 +69,7 @@ export default function Dashboard({ token, username }: DashboardProps) {
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Repositorios Privados</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.privateRepos')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{privateRepos}</p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -79,7 +81,7 @@ export default function Dashboard({ token, username }: DashboardProps) {
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Estrellas</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.totalStars')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{totalStars}</p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
@@ -96,8 +98,8 @@ export default function Dashboard({ token, username }: DashboardProps) {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Gestionar Repositorios</h3>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">Ver, crear y modificar privacidad de repos</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.manageRepos')}</h3>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{t('dashboard.manageReposDesc')}</p>
             </div>
             <FolderGit2 className="w-8 h-8 text-gray-400" />
           </div>
@@ -109,8 +111,8 @@ export default function Dashboard({ token, username }: DashboardProps) {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Editar Perfil</h3>
-              <p className="text-gray-500 dark:text-gray-400 mt-1">Edita tu README de perfil de GitHub</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.editProfile')}</h3>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{t('dashboard.editProfileDesc')}</p>
             </div>
             <FileEdit className="w-8 h-8 text-gray-400" />
           </div>

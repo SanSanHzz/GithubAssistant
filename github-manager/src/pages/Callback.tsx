@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Terminal } from 'lucide-react'
 import { GitHubAPI } from '../lib/github'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Callback() {
-  const [status, setStatus] = useState('Iniciando...')
+  const { t } = useLanguage()
+  const [status, setStatus] = useState(t('callback.starting'))
 
   const handleCallback = async () => {
     const urlParams = new URLSearchParams(window.location.search)
     const code = urlParams.get('code')
 
     if (!code) {
-      setStatus('Sin código')
+      setStatus(t('callback.noCode'))
       setTimeout(() => window.location.href = '/login', 2000)
       return
     }
 
-    setStatus('Intercambiando código...')
+    setStatus(t('callback.exchanging'))
 
     try {
       const response = await fetch('https://dnrif6ny.us-east.insforge.app/functions/github-oauth?code=' + code, {
@@ -29,12 +31,12 @@ export default function Callback() {
 
       if (!tokenData.access_token) {
         console.error('Token error:', tokenData)
-        setStatus('Código expirado. Intentá de nuevo.')
+        setStatus(t('callback.expired'))
         setTimeout(() => window.location.href = '/login', 3000)
         return
       }
 
-      setStatus('¡Token obtenido!')
+      setStatus(t('callback.tokenObtained'))
 
       const github = new GitHubAPI(tokenData.access_token)
       const user = await github.getUser()
@@ -42,11 +44,11 @@ export default function Callback() {
       localStorage.setItem('github_token', tokenData.access_token)
       localStorage.setItem('github_username', user.login)
       
-      setStatus('¡Listo! Redirigiendo...')
+      setStatus(t('callback.ready'))
       setTimeout(() => window.location.href = '/', 1500)
     } catch (err) {
       console.error('Error:', err)
-      setStatus('Error: ' + (err instanceof Error ? err.message : 'Error'))
+      setStatus(t('callback.error') + (err instanceof Error ? err.message : 'Error'))
       setTimeout(() => window.location.href = '/login', 3000)
     }
   }
@@ -61,7 +63,7 @@ export default function Callback() {
         <div className="inline-flex items-center justify w-16 h-16 bg-gray-900 dark:bg-white rounded-2xl mb-4">
           <Terminal className="w-8 h-8 text-white dark:text-gray-900 animate-pulse" />
         </div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Iniciando sesión...</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('callback.title')}</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-2">{status}</p>
       </div>
     </div>
