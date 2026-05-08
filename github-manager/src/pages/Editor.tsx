@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { GitHubAPI } from '../lib/github'
+import { parseMarkdownToHTML } from '../lib/markdown'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { Highlight } from '@tiptap/extension-highlight'
-import { Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Code, Highlighter, Save, Loader2 } from 'lucide-react'
+import { Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Code, Highlighter, Save, Loader2, Smile } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import EmojiPicker from '../components/EmojiPicker'
 
 interface EditorProps {
   token: string
@@ -71,8 +73,9 @@ export default function Editor({ token, username }: EditorProps) {
   useEffect(() => {
     if (editor && readme !== undefined) {
       const currentContent = editor.getHTML()
-      if (readme !== currentContent && readme !== '') {
-        editor.commands.setContent(readme)
+      const htmlContent = readme ? parseMarkdownToHTML(readme) : ''
+      if (htmlContent !== currentContent && htmlContent !== '') {
+        editor.commands.setContent(htmlContent)
       }
     }
   }, [readme, editor])
@@ -84,6 +87,8 @@ export default function Editor({ token, username }: EditorProps) {
     await commitMutation.mutateAsync(markdown)
     setSaving(false)
   }
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64">
@@ -187,6 +192,15 @@ export default function Editor({ token, username }: EditorProps) {
 
             <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
 
+            <button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className={`p-2 rounded-lg ${showEmojiPicker ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100'}`}
+            >
+              <Smile className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+
             {COLORS.map(color => (
               <button
                 key={color}
@@ -198,8 +212,17 @@ export default function Editor({ token, username }: EditorProps) {
           </div>
         </div>
 
-        <div className="p-6 min-h-[400px]">
-          <EditorContent editor={editor} className="prose prose-lg dark:prose-invert max-w-none" />
+        {showEmojiPicker && (
+          <div className="p-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <EmojiPicker onSelect={(emoji) => {
+              editor?.chain().focus().insertContent(emoji).run()
+              setShowEmojiPicker(false)
+            }} />
+          </div>
+        )}
+
+        <div className="p-6 min-h-[400px] bg-[#1e1e1e]" data-vscode-editor>
+          <EditorContent editor={editor} className="prose prose-invert max-w-none [&_h1]:!text-[#cccccc] [&_h2]:!text-[#cccccc] [&_h3]:!text-[#cccccc] [&_p]:!text-[#d4d4d4] [&_ul]:!text-[#d4d4d4] [&_ol]:!text-[#d4d4d4] [&_li]:!text-[#d4d4d4] [&_code]:!bg-[#3a3a3a] [&_code]:!text-[#ce9178] [&_pre]:!bg-[#1e1e1e] [&_pre]:!border [&_pre]:!border-[#3c3c3c]" />
         </div>
       </div>
 
