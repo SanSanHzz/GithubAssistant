@@ -25,6 +25,8 @@ GitHub Manager is a web application that allows you to manage GitHub repositorie
   - Inline code
   - Text highlighting
   - Text colors
+  - **Emoji support** - Insert emojis from 8 categorized palettes
+- **VSCode-style editing** - Dark editor theme (consistent across light/dark modes)
 - **Real-time preview** - See changes as you edit
 - **Auto-save** - Direct commit to your profile repository
 
